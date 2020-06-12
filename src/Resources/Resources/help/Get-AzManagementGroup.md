@@ -29,6 +29,10 @@ The Get-AzManagementGroup cmdlet Gets all or a specific Management Group.
 ## EXAMPLES
 
 ### Example 1: Get all Management Groups
+
+> [!NOTE]
+> The Get-AzManagementGroup only lists Management Groups for which the current user has a direct role assignment, unless a specific group name is specified. See example 5 to list management groups starting with the root management group.
+
 ```
 PS C:\> Get-AzManagementGroup
 
@@ -122,6 +126,46 @@ Name        : TestRecurseChild
 DisplayName : TestRecurseChild
 Children    :
 ```
+
+### Example 5: Get Root Management Group and all levels of hierarchy
+Use the Tenant ID for the group name name ito retrieve the root management group.
+
+To see all management groups, use the following and navigate through the `Children` array
+
+```
+PS C:\> $tenantId = '6b2064b9-34bd-46e6-9092-52f2dd5f7fc0'
+PS C:\> $response = Get-AzManagementGroup -GroupName $tenantId -Expand -Recurse
+PS C:\> $response
+
+Id                : /providers/Microsoft.Management/managementGroups/6b2064b9-34bd-46e6-9092-52f2dd5f7fc0
+Type              : /providers/Microsoft.Management/managementGroups
+Name              : 6b2064b9-34bd-46e6-9092-52f2dd5f7fc0
+TenantId          : 6b2064b9-34bd-46e6-9092-52f2dd5f7fc0
+DisplayName       : Tenant Root Group
+UpdatedTime       : 01/01/0001 00:00:00
+UpdatedBy         : 
+ParentId          : 
+ParentName        : 
+ParentDisplayName : 
+Children          : {TestGroup1DisplayName, TestGroup2DisplayName}
+
+PS C:\> $response.Children[0]
+
+Type        : /managementGroup
+Id          : /providers/Microsoft.Management/managementGroups/TestGroup1
+Name        : TestGroup1
+DisplayName : TestGroup1DisplayName
+Children    : {TestRecurseChild}
+
+PS C:\> $response.Children[0].Children[0]
+
+Type        : /managementGroup
+Id          : /providers/Microsoft.Management/managementGroups/TestRecurseChild
+Name        : TestRecurseChild
+DisplayName : TestRecurseChild
+Children    :
+```
+
 
 ## PARAMETERS
 
